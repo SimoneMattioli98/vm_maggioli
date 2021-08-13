@@ -27,7 +27,7 @@ from datasets import ClassLabel
 import random
 import pandas as pd
 from IPython.display import display, HTML
-
+import collections
 from datasets import Dataset, load_dataset, load_metric, concatenate_datasets
 import argparse
 from os import listdir, walk
@@ -37,7 +37,6 @@ import numpy as np
 import random
 import librosa
 import numpy as np
-import reprlib
 
 import torch
 
@@ -376,7 +375,7 @@ def create_hug_dataset(split_directory, split_train):
 
 hug_dataset_train, hug_dataset_val = create_hug_dataset(train_dir, split_train=80)
 
-
+show_random_elements(hug_dataset_train, 4)
 
 # common_voice_train = common_voice_train.map(remove_special_characters_comm)
 # common_voice_val = common_voice_val.map(remove_special_characters_comm)
