@@ -526,7 +526,7 @@ dataset_val = CustomDataset(dataset = hug_dataset_val, processor = processor)
 print("#### Initializing training arguments")
 training_args = TrainingArguments(
             output_dir='./finetuning_fbxlsr53_mlls/checkpoints',
-            group_by_length=True,
+            #group_by_length=True,
             do_train=True,
             do_eval=True,
             per_device_train_batch_size=16,
@@ -548,7 +548,7 @@ training_args = TrainingArguments(
 print("#### Creating Trainer")
 trainer = CTCTrainer(
         model=model,
-        length_field_name="length",
+        #length_field_name="length",
         lr_warmup_ratio = 0.1,
         lr_constant_ratio = 0.4,
         data_collator=data_collator,
@@ -561,7 +561,6 @@ trainer = CTCTrainer(
 
 
 try:
-
     print("#### Start training")
     trainer.train()
 
