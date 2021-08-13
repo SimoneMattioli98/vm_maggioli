@@ -508,6 +508,9 @@ class CustomDataset(Dataset):
         with self.processor.as_target_processor():
            item["labels"] = self.processor(item["target_text"]).input_ids
         del item["target_text"], item["speech"], item["sampling_rate"]
+
+        item["length"] = len(item["input_values"])
+
         return item
 
 
