@@ -138,10 +138,9 @@ class DataCollatorCTCWithPadding:
 
 class CTCTrainer(Trainer):
 
-    def __init__(self, model_output_dir, length_field_name="length", upload_model_to_wandb_each_step=None, lr_warmup_ratio=0.1, 
+    def __init__(self, length_field_name="length", upload_model_to_wandb_each_step=None, lr_warmup_ratio=0.1, 
                 lr_constant_ratio=0.4, sampling_rate=16_000, **kwargs):
         super().__init__(**kwargs)
-        self.model_output_dir = model_output_dir
         self.length_field_name = length_field_name
         self.upload_model_to_wandb_each_step = upload_model_to_wandb_each_step
         self.lr_warmup_ratio = lr_warmup_ratio
@@ -260,10 +259,7 @@ class CTCTrainer(Trainer):
         else:
             loss.backward()
 
-        if self.upload_model_to_wandb_each_step is not None and self.state.global_step > 0 \
-            and self.state.global_step % self.upload_model_to_wandb_each_step == 0:
-            upload_model_to_wandb(self.model_output_dir, name=f"{wandb.run.name}_{self.state.global_step}", metadata={"loss": float(loss)})
-
+    
         return loss.detach()
 
 
@@ -549,6 +545,7 @@ training_args = TrainingArguments(
 
 print("#### Creating Trainer")
 trainer = CTCTrainer(
+        model_output_dir=
         model=model,
         length_field_name="length",
         lr_warmup_ratio = 0.1,
