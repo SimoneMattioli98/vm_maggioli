@@ -545,7 +545,6 @@ training_args = TrainingArguments(
 
 print("#### Creating Trainer")
 trainer = CTCTrainer(
-        model_output_dir=
         model=model,
         length_field_name="length",
         lr_warmup_ratio = 0.1,
