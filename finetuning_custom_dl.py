@@ -15,6 +15,7 @@ from audiomentations import (
 )
 import time
 import torchaudio
+from torch import nn
 import json
 import re
 from transformers import Trainer
