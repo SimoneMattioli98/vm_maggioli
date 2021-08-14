@@ -380,22 +380,19 @@ show_random_elements(hug_dataset_train, 4)
 common_voice_train = common_voice_train.map(remove_special_characters_comm)
 common_voice_val = common_voice_val.map(remove_special_characters_comm)
 # print(common_voice_train["sentence"][0])
-# print(hug_dataset_train)
+print(hug_dataset_train)
 # print(hug_dataset_val)
-# print(common_voice_train)
+print(common_voice_train)
 # print(common_voice_val)
 
 
 
 print("####Merge datasets")
 
-merged_dataset_train = concatenate_datasets([hug_dataset_train, common_voice_train])
-merged_dataset_val = concatenate_datasets([hug_dataset_val, common_voice_val])
-print(type(merged_dataset_train))
-# print(merged_dataset_val)
+merged_dataset_train = concatenate_datasets([hug_dataset_train, common_voice_train]).shuffle(seed=1234)
+merged_dataset_val = concatenate_datasets([hug_dataset_val, common_voice_val]).shuffle(seed=1234)
 
-#merged_dataset_train.shuffle(seed=1234)
-#print(merged_dataset_train)
+print(merged_dataset_train)
 #print(merged_dataset_val)
 
 
