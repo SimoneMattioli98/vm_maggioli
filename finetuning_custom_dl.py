@@ -457,7 +457,6 @@ data_collator = DataCollatorCTCWithPadding(
 wer_metric = load_metric("wer")
 
 
-
 print("#### Creating model")
 model = Wav2Vec2ForCTC.from_pretrained(
     "facebook/wav2vec2-large-xlsr-53",
