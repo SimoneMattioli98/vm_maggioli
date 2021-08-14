@@ -105,7 +105,8 @@ total_cer = 0
 wer = load_metric("wer")
 cer = load_metric("cer")
 
-for batch in hug_dataset_test:
+for index, batch in enumerate(hug_dataset_test):
+    print(index)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
