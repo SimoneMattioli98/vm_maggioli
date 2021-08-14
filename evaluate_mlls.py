@@ -121,6 +121,8 @@ for index, batch in enumerate(hug_dataset_test):
     pred_ids = torch.argmax(logits, dim=-1)
     prediction = processor.batch_decode(pred_ids)
 
+    print(f"PRED: {prediction[0].upper()}\nREF: {batch['sentence'].upper()}")
+
     total_wer += wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
     total_cer += cer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
 

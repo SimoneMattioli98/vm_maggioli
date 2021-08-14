@@ -300,12 +300,12 @@ def compute_metrics(pred):
 
 print("#### Loading dataset")
 
-# print("####Commonvoice")
-# common_voice_train = load_dataset("common_voice", "it", split=f'train')
-# common_voice_val = load_dataset("common_voice", "it", split=f'validation')
+print("####Commonvoice")
+common_voice_train = load_dataset("common_voice", "it", split=f'train')
+common_voice_val = load_dataset("common_voice", "it", split=f'validation')
 
-# common_voice_train = common_voice_train.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
-# common_voice_val = common_voice_val.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
+common_voice_train = common_voice_train.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
+common_voice_val = common_voice_val.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
 
 print("####MLLS")
 
@@ -377,8 +377,8 @@ hug_dataset_train, hug_dataset_val = create_hug_dataset(train_dir, split_train=8
 
 show_random_elements(hug_dataset_train, 4)
 
-# common_voice_train = common_voice_train.map(remove_special_characters_comm)
-# common_voice_val = common_voice_val.map(remove_special_characters_comm)
+common_voice_train = common_voice_train.map(remove_special_characters_comm)
+common_voice_val = common_voice_val.map(remove_special_characters_comm)
 # print(common_voice_train["sentence"][0])
 # print(hug_dataset_train)
 # print(hug_dataset_val)
@@ -387,14 +387,14 @@ show_random_elements(hug_dataset_train, 4)
 
 
 
-# print("####Merge datasets")
+print("####Merge datasets")
 
-# merged_dataset_train = concatenate_datasets([hug_dataset_train, common_voice_train])
-# merged_dataset_val = concatenate_datasets([hug_dataset_val, common_voice_val])
+merged_dataset_train = concatenate_datasets([hug_dataset_train, common_voice_train])
+merged_dataset_val = concatenate_datasets([hug_dataset_val, common_voice_val])
 # print(merged_dataset_train)
 # print(merged_dataset_val)
-#merged_dataset_train = Dataset.from_dict(merged_dataset_train)
-#merged_dataset_val = Dataset.from_dict(merged_dataset_val)
+merged_dataset_train = Dataset.from_dict(merged_dataset_train)
+merged_dataset_val = Dataset.from_dict(merged_dataset_val)
 #print(merged_dataset_train)
 #print(merged_dataset_val)
 
@@ -516,8 +516,8 @@ class CustomDataset(Dataset):
 
 
 print("#### Preparing dataset for training using the CustomDataset")
-dataset_train = CustomDataset(dataset = hug_dataset_train, processor = processor)
-dataset_val = CustomDataset(dataset = hug_dataset_val, processor = processor)
+dataset_train = CustomDataset(dataset = merged_dataset_train, processor = processor)
+dataset_val = CustomDataset(dataset = merged_dataset_val, processor = processor)
 
 
 
