@@ -117,8 +117,8 @@ for batch in hug_dataset_test:
     pred_ids = torch.argmax(logits, dim=-1)
     prediction = processor.batch_decode(pred_ids)
 
-    total_wer += wer.compute(predictions=[prediction[0].upper()], references=[batch["target_text"].upper()]) * 100
-    total_cer += cer.compute(predictions=[prediction[0].upper()], references=[batch["target_text"].upper()]) * 100
+    total_wer += wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
+    total_cer += cer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
 
 total_cer /= len(hug_dataset_test)
 total_wer /= len(hug_dataset_test)
