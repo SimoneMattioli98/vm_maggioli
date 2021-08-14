@@ -105,7 +105,9 @@ wer = load_metric("wer")
 cer = load_metric("cer")
 
 for batch in hug_dataset_test:
-    speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
     batch["speech"] = speech_array
     batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).upper()
 
