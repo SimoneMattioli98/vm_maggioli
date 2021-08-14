@@ -391,11 +391,10 @@ print("####Merge datasets")
 
 merged_dataset_train = concatenate_datasets([hug_dataset_train, common_voice_train])
 merged_dataset_val = concatenate_datasets([hug_dataset_val, common_voice_val])
-# print(merged_dataset_train)
+print(type(merged_dataset_train))
 # print(merged_dataset_val)
-merged_dataset_train = Dataset.from_dict(merged_dataset_train)
-merged_dataset_val = Dataset.from_dict(merged_dataset_val)
-merged_dataset_train.shuffle(seed=1234)
+
+#merged_dataset_train.shuffle(seed=1234)
 #print(merged_dataset_train)
 #print(merged_dataset_val)
 
