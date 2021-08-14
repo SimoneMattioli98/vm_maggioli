@@ -8,6 +8,7 @@ import numpy as np
 from transformers import Wav2Vec2Processor
 from transformers import Wav2Vec2ForCTC
 import torch 
+import random
 
 def show_random_elements(dataset, num_examples=1):
     assert num_examples <= len(dataset), "Can't pick more elements than there are in the dataset."
