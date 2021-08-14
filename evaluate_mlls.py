@@ -105,21 +105,17 @@ wer = load_metric("wer")
 cer = load_metric("cer")
 
 for batch in hug_dataset_test:
-    speech_array, sampling_rate = torchaudio.load(batch["path"])
-    batch["speech"] = speech_array[0].numpy()
-    batch["sampling_rate"] = sampling_rate
-    batch["target_text"] = batch["sentence"]
-    del batch["path"], batch["sentence"]
-    batch["speech"] = librosa.resample(np.asarray(batch["speech"]), sampling_rate, 16_000)
-    batch["sampling_rate"] = 16_000
-    batch["input_values"] = processor(batch["speech"], sampling_rate=batch["sampling_rate"]).input_values[0]
+    speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
+    batch["speech"] = speech_array
+    batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).upper()
+
+    inputs = processor(batch["speech"], sampling_rate=16_000, return_tensors="pt", padding=True)
 
     with torch.no_grad():
-        logits = model(batch["input_values"].input_values.to(DEVICE), attention_mask=batch["input_values"].attention_mask.to(DEVICE)).logits
-    
+        logits = model(inputs.input_values.to(DEVICE), attention_mask=inputs.attention_mask.to(DEVICE)).logits
+
     pred_ids = torch.argmax(logits, dim=-1)
     prediction = processor.batch_decode(pred_ids)
-
 
     total_wer += wer.compute(predictions=[prediction[0].upper()], references=[batch["target_text"].upper()]) * 100
     total_cer += cer.compute(predictions=[prediction[0].upper()], references=[batch["target_text"].upper()]) * 100
