@@ -393,8 +393,8 @@ merged_dataset_train = concatenate_datasets([hug_dataset_train, common_voice_tra
 merged_dataset_val = concatenate_datasets([hug_dataset_val, common_voice_val])
 # print(merged_dataset_train)
 # print(merged_dataset_val)
-merged_dataset_train = Dataset.from_dict(merged_dataset_train)
-merged_dataset_val = Dataset.from_dict(merged_dataset_val)
+merged_dataset_train = Dataset.from_dict(merged_dataset_train).shuffle(1234)
+merged_dataset_val = Dataset.from_dict(merged_dataset_val).shuffle(1234)
 #print(merged_dataset_train)
 #print(merged_dataset_val)
 
@@ -524,7 +524,7 @@ dataset_val = CustomDataset(dataset = merged_dataset_val, processor = processor)
 
 print("#### Initializing training arguments")
 training_args = TrainingArguments(
-            output_dir='./finetuning_fbxlsr53_mlls/checkpoints',
+            output_dir='./finetuning_fbxlsr53_all/checkpoints',
             #group_by_length=True,
             do_train=True,
             do_eval=True,
@@ -564,9 +564,9 @@ try:
     trainer.train()
 
     print("#### Save model")
-    trainer.save_model('./finetuning_fbxlsr53_mlls/final')
+    trainer.save_model('./finetuning_fbxlsr53_all/final')
 except Exception as e:
-    with open('./finetuning_fbxlsr53_mlls/error.txt', 'w') as f:
+    with open('./finetuning_fbxlsr53_all/error.txt', 'w') as f:
         f.write(str(e))
     print(str(e))
 
