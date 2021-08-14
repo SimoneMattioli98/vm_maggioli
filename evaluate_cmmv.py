@@ -26,16 +26,13 @@ def show_random_elements(dataset, num_examples=1):
 
 
 
-print("####MLLS")
+print("####CMMV")
 
-main_dir = "dataset/MultilingualLibriSpeech/mls_italian_opus"
+common_voice_test = load_dataset("common_voice", "it", split=f'test')
 
-test_dir = join(main_dir, 'test')
+common_voice_test = common_voice_test.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
 
-file_transcripts = 'transcripts.txt'
 
-list_txt_train = []
-list_txt_val = []
 
 CHARS_TO_IGNORE = [",", "?", "¿", ".", "!", "¡", ";", ";", ":", '""', "%", '"', "?", "?", "·", "?", "~", "?",
                    "?", "?", "?", "?", "«", "»", "„", "“", "”", "?", "?", "‘", "’", "«", "»", "(", ")", "[", "]",
@@ -45,46 +42,14 @@ CHARS_TO_IGNORE = [",", "?", "¿", ".", "!", "¡", ";", ";", ":", '""', "%", '"'
 
 chars_to_ignore_regex = f"[{re.escape(''.join(CHARS_TO_IGNORE))}]"
 
-def remove_special_characters_mlls(sentence):
-    sentence = re.sub(chars_to_ignore_regex, "", sentence).strip().upper() + " "
-    return sentence
 
+def remove_special_characters_comm(batch):
+    batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).strip().upper() + " "
+    return batch
 
-def create_hug_dataset(split_directory):
-    
-    list_opus = []
-    labels_dict = {}
-    for (dirpath, dirnames, filenames) in walk(split_directory):
-        list_opus += [join(dirpath, file) for file in filenames if file.endswith(".opus")]
+common_voice_test = common_voice_test.map(remove_special_characters_comm)
 
-    with open(join(split_directory, file_transcripts), 'r') as f: 
-        content = f.read()
-        sentences = content.split(sep="\n")
-
-    for sent in sentences:
-        if(sent != ''):
-            sent = re.sub(' +', ' ', sent)
-            sent = sent.split("\t", maxsplit=1)
-            labels_dict[sent[0]] = sent[1]
-
-    audio_dict = {opus.split("/")[-1].split(".")[0]: opus for opus in list_opus}
-
-    print("#### Removing special characters from labels mlls")
-
-    labels_dict = {k: remove_special_characters_mlls(v) for k, v in labels_dict.items()}
-    dict_dataset = {'path': [], 'sentence': []}
-
-    for k, v in audio_dict.items():
-        dict_dataset['path'].append(v)
-        dict_dataset['sentence'].append(labels_dict[k])
-
-    tot_len = len(dict_dataset["path"])
-    print(f"N DATA TEST: {tot_len}")
-
-    return Dataset.from_dict(dict_dataset)
-
-
-hug_dataset_test = create_hug_dataset(test_dir)
+show_random_elements(common_voice_test, 4)
 
 DEVICE = "cuda"
 
@@ -94,15 +59,13 @@ processor = Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xls
 
 model = Wav2Vec2ForCTC.from_pretrained(f"{model_folder}final").to(DEVICE)
 
-show_random_elements(hug_dataset_test, 4)
-
 total_wer = 0
 total_cer = 0
 
 wer = load_metric("wer")
 cer = load_metric("cer")
 
-for index, batch in enumerate(hug_dataset_test):
+for index, batch in enumerate(common_voice_test):
     print(index)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -118,15 +81,15 @@ for index, batch in enumerate(hug_dataset_test):
     pred_ids = torch.argmax(logits, dim=-1)
     prediction = processor.batch_decode(pred_ids)
 
-    print(f"PRED: {prediction[0].upper()}\nREF: {batch['sentence'].upper()}")
+    #print(f"PRED: {prediction[0].upper()}\nREF: {batch['sentence'].upper()}")
 
     total_wer += wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
     total_cer += cer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
 
-total_cer /= len(hug_dataset_test)
-total_wer /= len(hug_dataset_test)
+total_cer /= len(common_voice_test)
+total_wer /= len(common_voice_test)
 
-with open(f"{model_folder}results_mlls.txt", "w") as f:
+with open(f"{model_folder}results_cmmv.txt", "w") as f:
     f.write(f"WER: {total_wer}\nCER: {total_cer}")
 
 
