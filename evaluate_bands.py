@@ -139,9 +139,9 @@ DEVICE = "cuda"
 
 model_folder = "./finetuning_fbxlsr53_mlls/"
 
-processor = Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-italian")
+#processor = Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-italian")
 
-model = Wav2Vec2ForCTC.from_pretrained(f"{model_folder}final")#.to(DEVICE)
+#model = Wav2Vec2ForCTC.from_pretrained(f"{model_folder}final")#.to(DEVICE)
 
 wer = load_metric("wer")
 
@@ -164,5 +164,5 @@ for batch in merged_dataset_test:
     # wer_computed = wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
 
     info = torchaudio.info(batch["path"])
-    print(info)
+    print(info.num_frames)
     break
