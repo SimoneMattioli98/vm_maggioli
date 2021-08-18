@@ -97,7 +97,7 @@ def fit(epochs, model, train_loader, val_loader, grad_clip=False):
     ''' Function where we fit the model and record the metrics for each epoch with the inputted hyperparameters'''
 
     # Instantiate our model and empty lists to record metrics
-    model.cuda() # move model to GPU'
+    #model.cuda() # move model to GPU'
     train_losses = []
     train_accuracies = []
     val_losses = []

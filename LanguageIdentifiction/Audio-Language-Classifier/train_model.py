@@ -21,6 +21,7 @@ random_seed = 10
 # our batch size for training
 batch_size=64
 # Instantiate our model with the optimal parameters (refer to notebooks)
+print("####BUILDING NET")
 model = CNN_model_3(opt_fun=torch.optim.Adam, lr=0.001)
 
 
@@ -28,6 +29,7 @@ model = CNN_model_3(opt_fun=torch.optim.Adam, lr=0.001)
 # Step 2: Load in our data and prepare it for training   #
 ##########################################################
 # our transformations when importing the images
+print("####LOAD THE N^DATA AND PREPARE IT")
 transformations = tf.Compose([tf.Resize([64,64]), tf.ToTensor()])
 # load in train / test data
 trainset = ImageFolder('data/train', transform=transformations)
@@ -62,6 +64,7 @@ if torch.cuda.is_available():
 ##########################################################
 # Step 4: Training the model                             #
 ##########################################################
+print("####TRAIN NET")
 # fit the model
 history = fit(epochs=20, model=model, train_loader=train_dl, val_loader=val_dl)
 # record metrics
@@ -72,6 +75,7 @@ train_losses, train_accuracies, val_losses, val_accuracies = history
 # Step 5: Score the model and output performance metrics #
 ##########################################################
 # load our test data loader onto GPU
+print("####TEST NET")
 test_dl = DeviceDataLoader(DataLoader(testset, batch_size*2), device)
 # calculate the loss and accuracy
 test_loss, test_score =  evaluate(model, dataloader=test_dl, calc_loss=True)
