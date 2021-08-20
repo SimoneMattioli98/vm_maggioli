@@ -13,6 +13,7 @@ from audiomentations import (
     TimeMask,
     TimeStretch,
 )
+import csv
 import time
 import torchaudio
 from torch import nn
@@ -296,7 +297,17 @@ def compute_metrics(pred):
     return {"wer": wer}
 
 
+def create_new_cmmv(path_to_csv):
+    dict = {"path": [], "sentence": []}
+    with open(path_to_csv, 'r') as f:
 
+        read_tsv = csv.reader(f, delimiter="\t")
+        read_tsv = [row for row in read_tsv]
+        read_tsv = read_tsv[1:]
+        for row in read_tsv:
+            dict["path"].appen(row[1])
+            dict["sentence"].appen(row[2])
+    return Dataset.from_dict(dict)
 
 print("#### Loading dataset")
 
@@ -304,11 +315,11 @@ print("####Commonvoice new")
 
 fold = "dataset/cv_new/cv-corpus-7.0-2021-07-21/it/"
 
-common_voice_train = load_dataset('csv', data_files=f'{fold}train2.csv')
-common_voice_val = load_dataset('csv', data_files=f'{fold}dev2.csv')
 
-common_voice_train = common_voice_train.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
-common_voice_val = common_voice_val.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
+
+common_voice_train = create_new_cmmv(f"{fold}train2.csv")
+common_voice_val = create_new_cmmv(f"{fold}dev2.csv")
+
 
 CHARS_TO_IGNORE = [",", "?", "¿", ".", "!", "¡", ";", ";", ":", '""', "%", '"', "?", "?", "·", "?", "~", "?",
                    "?", "?", "?", "?", "«", "»", "„", "“", "”", "?", "?", "‘", "’", "«", "»", "(", ")", "[", "]",
@@ -329,9 +340,6 @@ common_voice_val = common_voice_val.map(remove_special_characters_comm)
 
 print(common_voice_train)
 print(common_voice_val)
-
-
-
 
 #print("#### Creating vocabolary")
 #all_text = " ".join([v for k, v in labels_dict_train.items()])
