@@ -437,7 +437,7 @@ class CustomDataset(Dataset):
 
 
     def preprocessing(self, item):
-        speech_array, sampling_rate = torchaudio.load(f"{fold}clips/{item['path']}")
+        speech_array, sampling_rate = torchaudio.load(f"{fold}clips2/{item['path']}")
         item["speech"] = speech_array[0].numpy()
         item["sampling_rate"] = sampling_rate
         item["target_text"] = item["sentence"]
@@ -508,7 +508,7 @@ try:
     print("#### Save model")
     trainer.save_model('./finetuning_jonatas_new_cmmv/final')
 except Exception as e:
-    with open('./finetuning_jonatas_new_cmmv', 'w') as f:
+    with open('./finetuning_jonatas_new_cmmv/error.txt', 'w') as f:
         f.write(str(e))
     print(str(e))
 
