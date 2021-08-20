@@ -134,7 +134,8 @@ for index, batch in enumerate(merged_dataset_test):
         warnings.simplefilter("ignore")
         try:
             speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
-        except:
+        except Exception as e:
+            print(e)
             continue
     batch["speech"] = speech_array
     batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).upper()
