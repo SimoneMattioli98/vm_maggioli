@@ -304,8 +304,8 @@ print("####Commonvoice new")
 
 fold = "dataset/cv_new/cv-corpus-7.0-2021-07-21/it/"
 
-common_voice_train = load_dataset('tsv', data_files=f'{fold}train2.tsv')
-common_voice_val = load_dataset('tsv', data_files=f'{fold}dev2.tsv')
+common_voice_train = load_dataset('csv', data_files=f'{fold}train2.csv')
+common_voice_val = load_dataset('csv', data_files=f'{fold}dev2.csv')
 
 common_voice_train = common_voice_train.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
 common_voice_val = common_voice_val.remove_columns(["accent", "age", "client_id", "down_votes", "gender", "locale", "segment", "up_votes"])
