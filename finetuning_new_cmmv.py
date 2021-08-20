@@ -305,8 +305,8 @@ def create_new_cmmv(path_to_csv):
         read_tsv = [row for row in read_tsv]
         read_tsv = read_tsv[1:]
         for row in read_tsv:
-            dict["path"].appen(row[1])
-            dict["sentence"].appen(row[2])
+            dict["path"].append(row[1])
+            dict["sentence"].append(row[2])
     return Dataset.from_dict(dict)
 
 print("#### Loading dataset")
