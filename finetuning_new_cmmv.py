@@ -437,7 +437,7 @@ class CustomDataset(Dataset):
 
 
     def preprocessing(self, item):
-        speech_array, sampling_rate = torchaudio.load(item["path"])
+        speech_array, sampling_rate = torchaudio.load(f"{fold}clips/{item['path']}")
         item["speech"] = speech_array[0].numpy()
         item["sampling_rate"] = sampling_rate
         item["target_text"] = item["sentence"]
