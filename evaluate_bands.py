@@ -109,9 +109,9 @@ show_random_elements(common_voice_test, 2)
 
 print("####Merge datasets")
 
-#merged_dataset_test = concatenate_datasets([hug_dataset_test, common_voice_test]).shuffle(seed=1234)
+merged_dataset_test = concatenate_datasets([hug_dataset_test, common_voice_test]).shuffle(seed=1234)
 
-#show_random_elements(merged_dataset_test, 2)
+show_random_elements(merged_dataset_test, 2)
 
 DEVICE = "cuda"
 
@@ -127,7 +127,8 @@ ranges = {} # contains (count, tot_wer)
 
 bands_len = 3 #2 second bands
 
-for batch in common_voice_test:
+print("#### EVALUATE")
+for batch in merged_dataset_test:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
