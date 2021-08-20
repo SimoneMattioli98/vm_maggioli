@@ -163,7 +163,7 @@ for index, batch in enumerate(merged_dataset_test):
 with open(f"evaluation_bands_{model_name}.txt", "w") as f:
     for key in sorted(ranges.keys()):
         mean_wer = ranges[key][1] / ranges[key][0]
-        f.write(f"[{int(key)*2},{int(key)*2+band}) -> Count: {ranges[key][0]}, Wer: {mean_wer}\n")
+        f.write(f"[{int(key)*bands_len},{int(key)*bands_len+bands_len}) -> Count: {ranges[key][0]}, Wer: {mean_wer}\n")
 
 
 
