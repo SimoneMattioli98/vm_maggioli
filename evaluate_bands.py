@@ -128,7 +128,8 @@ ranges = {} # contains (count, tot_wer)
 bands_len = 3 #2 second bands
 
 print("#### EVALUATE")
-for batch in merged_dataset_test:
+for index, batch in enumerate(merged_dataset_test):
+    print(f"{index} - {len(merged_dataset_test)}")
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
