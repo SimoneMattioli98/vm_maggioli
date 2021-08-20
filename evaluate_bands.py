@@ -25,28 +25,6 @@ def show_random_elements(dataset, num_examples=1):
     print(df)
 
 
-# def extract_all_chars(batch):
-#     all_text = " ".join(batch)
-#     vocab = list(set(all_text))
-#     return {"vocab": [vocab], "all_text": [all_text]}
-
-def compute_metrics(pred):
-    pred_logits = pred.predictions
-    pred_ids = np.argmax(pred_logits, axis=-1)
-
-    pred.label_ids[pred.label_ids == -100] = processor.tokenizer.pad_token_id
-
-    pred_str = processor.batch_decode(pred_ids)
-
-    label_str = processor.batch_decode(pred.label_ids, group_tokens=False)
-
-    wer = wer_metric.compute(predictions=pred_str, references=label_str)
-
-    return {"wer": wer}
-
-
-
-
 print("#### Loading dataset")
 
 print("####Commonvoice")
@@ -115,13 +93,13 @@ def create_hug_dataset(split_directory):
     return Dataset.from_dict(dict_dataset)
 
 
-hug_dataset_test = create_hug_dataset(test_dir)
+#hug_dataset_test = create_hug_dataset(test_dir)
 
-show_random_elements(hug_dataset_test, 2)
+#show_random_elements(hug_dataset_test, 2)
 
 common_voice_test = common_voice_test.map(remove_special_characters_comm)
 # print(common_voice_train["sentence"][0])
-print(hug_dataset_test)
+#print(hug_dataset_test)
 # print(hug_dataset_val)
 print(common_voice_test)
 # print(common_voice_val)
@@ -131,38 +109,59 @@ show_random_elements(common_voice_test, 2)
 
 print("####Merge datasets")
 
-merged_dataset_test = concatenate_datasets([hug_dataset_test, common_voice_test]).shuffle(seed=1234)
+#merged_dataset_test = concatenate_datasets([hug_dataset_test, common_voice_test]).shuffle(seed=1234)
 
-show_random_elements(merged_dataset_test, 2)
+#show_random_elements(merged_dataset_test, 2)
 
 DEVICE = "cuda"
 
-model_folder = "./finetuning_fbxlsr53_mlls/"
+model_name = "jonatasgrosman"
 
-#processor = Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-italian")
+processor = Wav2Vec2Processor.from_pretrained(f"{model_name}/wav2vec2-large-xlsr-53-italian")
 
-#model = Wav2Vec2ForCTC.from_pretrained(f"{model_folder}final")#.to(DEVICE)
+model = Wav2Vec2ForCTC.from_pretrained(f"{model_name}/wav2vec2-large-xlsr-53-italian")#.to(DEVICE)
 
 wer = load_metric("wer")
 
-ranges = {}
+ranges = {} # contains (count, tot_wer)
 
-for batch in merged_dataset_test:
-    # with warnings.catch_warnings():
-    #     warnings.simplefilter("ignore")
-    #     speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
-    # batch["speech"] = speech_array
-    # batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).upper()
+bands_len = 3 #2 second bands
 
-    # inputs = processor(batch["speech"], sampling_rate=16_000, return_tensors="pt", padding=True)
+for batch in common_voice_test:
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
+    batch["speech"] = speech_array
+    batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).upper()
 
-    # with torch.no_grad():
-    #     logits = model(inputs.input_values.to(DEVICE), attention_mask=inputs.attention_mask.to(DEVICE)).logits
+    inputs = processor(batch["speech"], sampling_rate=16_000, return_tensors="pt", padding=True)
 
-    # pred_ids = torch.argmax(logits, dim=-1)
-    # prediction = processor.batch_decode(pred_ids)
-    # wer_computed = wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
+    with torch.no_grad():
+        logits = model(inputs.input_values, attention_mask=inputs.attention_mask).logits
+
+    pred_ids = torch.argmax(logits, dim=-1)
+    prediction = processor.batch_decode(pred_ids)
+    wer_computed = wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
 
     info = torchaudio.info(batch["path"])
-    print(info.num_frames)
-    break
+    duration_sec = info.num_frames / sampling_rate
+
+    band = int(duration_sec / bands_len)
+
+    if band not in ranges:
+        ranges[band] = [1, wer_computed]
+    else:
+        ranges[band][0] += 1
+        ranges[band][1] += wer_computed
+
+with open(f"evaluation_bands_{model_name}.txt", "w") as f:
+    for key in sorted(ranges.keys()):
+        mean_wer = ranges[key][1] / ranges[key][0]
+        f.write(f"[{int(key)*2},{int(key)*2+band}) -> Count: {ranges[key][0]}, Wer: {mean_wer}\n")
+
+
+
+
+    
+
+    
