@@ -93,7 +93,7 @@ def create_hug_dataset(split_directory):
     return Dataset.from_dict(dict_dataset)
 
 
-#hug_dataset_test = create_hug_dataset(test_dir)
+hug_dataset_test = create_hug_dataset(test_dir)
 
 #show_random_elements(hug_dataset_test, 2)
 
@@ -119,7 +119,7 @@ model_name = "jonatasgrosman"
 
 processor = Wav2Vec2Processor.from_pretrained(f"{model_name}/wav2vec2-large-xlsr-53-italian")
 
-model = Wav2Vec2ForCTC.from_pretrained(f"{model_name}/wav2vec2-large-xlsr-53-italian")#.to(DEVICE)
+model = Wav2Vec2ForCTC.from_pretrained(f"{model_name}/wav2vec2-large-xlsr-53-italian").to(DEVICE)
 
 wer = load_metric("wer")
 
@@ -138,7 +138,7 @@ for batch in merged_dataset_test:
     inputs = processor(batch["speech"], sampling_rate=16_000, return_tensors="pt", padding=True)
 
     with torch.no_grad():
-        logits = model(inputs.input_values, attention_mask=inputs.attention_mask).logits
+        logits = model(inputs.input_values.to(DEVICE), attention_mask=inputs.attention_mask.to(DEVICE)).logits
 
     pred_ids = torch.argmax(logits, dim=-1)
     prediction = processor.batch_decode(pred_ids)
