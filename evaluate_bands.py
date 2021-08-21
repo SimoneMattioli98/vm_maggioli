@@ -125,7 +125,7 @@ wer = load_metric("wer")
 
 ranges = {} # contains (count, tot_wer)
 
-bands_len = 3 #2 second bands
+bands_len = 2 #2 second bands
 
 print("#### EVALUATE")
 for index, batch in enumerate(merged_dataset_test):
