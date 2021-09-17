@@ -45,7 +45,7 @@ print("#### Loading dataset")
 
 print("####Commonvoice new")
 
-fold = "dataset/cv_new/cv-corpus-7.0-2021-07-21/it/"
+fold = "../dataset/cv_new/cv-corpus-7.0-2021-07-21/it/"
 
 
 
@@ -73,7 +73,7 @@ DEVICE = "cuda"
 
 processor = Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-italian")
 
-model = Wav2Vec2ForCTC.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-italian").to(DEVICE)
+model = Wav2Vec2ForCTC.from_pretrained("../finetuning_jonatas_new_cmmv/final").to(DEVICE)
 
 total_wer = 0
 total_cer = 0
@@ -85,7 +85,7 @@ for index, batch in enumerate(common_voice_test):
     print(index)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
+        speech_array, sampling_rate = librosa.load(f"{fold}/clips2/"+batch["path"], sr=16_000)
     batch["speech"] = speech_array
     batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).upper()
 

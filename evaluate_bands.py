@@ -150,7 +150,8 @@ for index, batch in enumerate(merged_dataset_test):
     wer_computed = wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
 
     info = torchaudio.info(batch["path"])
-    duration_sec = info.num_frames / sampling_rate
+    print(info)
+    duration_sec = info.num_frames / info.sample_rate
 
     band = int(duration_sec / bands_len)
 
