@@ -29,7 +29,7 @@ def show_random_elements(dataset, num_examples=1):
 
 print("####CMMV")
 
-def create_new_cmmv(path_to_csv):
+def create_new_cmmv(path_to_csv, audio_folder):
     dict = {"path": [], "sentence": []}
     with open(path_to_csv, 'r') as f:
 
@@ -37,7 +37,7 @@ def create_new_cmmv(path_to_csv):
         read_tsv = [row for row in read_tsv]
         read_tsv = read_tsv[1:]
         for row in read_tsv:
-            dict["path"].append(row[1])
+            dict["path"].append(f"{audio_folder}{row[1]}")
             dict["sentence"].append(row[2])
     return Dataset.from_dict(dict)
 
@@ -48,8 +48,8 @@ print("####Commonvoice new")
 fold = "dataset/cv_new/cv-corpus-7.0-2021-07-21/it/"
 
 
-common_voice_train = create_new_cmmv(f"{fold}train2.csv")
-common_voice_val = create_new_cmmv(f"{fold}dev2.csv")   
+common_voice_train = create_new_cmmv(f"{fold}train2.csv", f"{fold}clips2/")
+common_voice_val = create_new_cmmv(f"{fold}dev2.csv", f"{fold}clips2/")   
 
 print("####Merge datasets")
 
