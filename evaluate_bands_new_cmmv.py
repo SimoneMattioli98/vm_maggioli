@@ -45,10 +45,16 @@ print("#### Loading dataset")
 
 print("####Commonvoice new")
 
-fold = "../dataset/cv_new/cv-corpus-7.0-2021-07-21/it/"
+fold = "dataset/cv_new/cv-corpus-7.0-2021-07-21/it/"
 
 
-common_voice_test = create_new_cmmv(f"{fold}test2.csv")
+common_voice_train = create_new_cmmv(f"{fold}train2.csv")
+common_voice_val = create_new_cmmv(f"{fold}dev2.csv")   
+
+print("####Merge datasets")
+
+merged_dataset = concatenate_datasets([common_voice_train, common_voice_val]).shuffle(seed=1234)
+
 
 
 CHARS_TO_IGNORE = [",", "?", "¿", ".", "!", "¡", ";", ";", ":", '""', "%", '"', "?", "?", "·", "?", "~", "?",
@@ -64,27 +70,32 @@ def remove_special_characters_comm(batch):
     batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).strip().upper() + " "
     return batch
 
-common_voice_test = common_voice_test.map(remove_special_characters_comm)
+merged_dataset = merged_dataset.map(remove_special_characters_comm)
 
-show_random_elements(common_voice_test, 4)
+show_random_elements(merged_dataset, 4)
 
 DEVICE = "cuda"
 
 processor = Wav2Vec2Processor.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-italian")
 
-model = Wav2Vec2ForCTC.from_pretrained("../finetuning_jonatas_new_cmmv/final").to(DEVICE)
+model = Wav2Vec2ForCTC.from_pretrained("jonatasgrosman/wav2vec2-large-xlsr-53-italian").to(DEVICE)
 
 total_wer = 0
-total_cer = 0
+#total_cer = 0
 
 wer = load_metric("wer")
 cer = load_metric("cer")
 
-for index, batch in enumerate(common_voice_test):
+ranges = {} # contains (count, tot_wer)
+
+bands_len = 2 #2 second bands
+
+
+for index, batch in enumerate(merged_dataset):
     print(index)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        speech_array, sampling_rate = librosa.load(f"{fold}/clips2/"+batch["path"], sr=16_000)
+        speech_array, sampling_rate = librosa.load(batch["path"], sr=16_000)
     batch["speech"] = speech_array
     batch["sentence"] = re.sub(chars_to_ignore_regex, "", batch["sentence"]).upper()
 
@@ -97,15 +108,30 @@ for index, batch in enumerate(common_voice_test):
     prediction = processor.batch_decode(pred_ids)
 
     #print(f"PRED: {prediction[0].upper()}\nREF: {batch['sentence'].upper()}")
+    
+    wer_computed = wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
+    total_wer += wer_computed
+    #total_cer += cer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
 
-    total_wer += wer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
-    total_cer += cer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
+    info = torchaudio.info(batch["path"])
+    duration_sec = info.num_frames / sampling_rate
 
-total_cer /= len(common_voice_test)
-total_wer /= len(common_voice_test)
+    band = int(duration_sec / bands_len)
 
-with open(f"results_new_cmmv.txt", "w") as f:
-    f.write(f"WER: {total_wer}\nCER: {total_cer}")
+    if band not in ranges:
+        ranges[band] = [1, wer_computed]
+    else:
+        ranges[band][0] += 1
+        ranges[band][1] += wer_computed
+
+#total_cer /= len(common_voice_test)
+total_wer /= len(merged_dataset)
+
+with open(f"evaluation_bands_new_cmmv.txt", "w") as f:
+    for key in sorted(ranges.keys()):
+        mean_wer = ranges[key][1] / ranges[key][0]
+        f.write(f"[{int(key)*bands_len},{int(key)*bands_len+bands_len}) -> Count: {ranges[key][0]}, Wer: {mean_wer}\n")
+    f.write(f"WER: {total_wer}\n") #CER: {total_cer}")
 
 
 
