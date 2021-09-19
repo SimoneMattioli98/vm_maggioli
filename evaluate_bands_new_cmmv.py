@@ -114,7 +114,7 @@ for index, batch in enumerate(merged_dataset):
     #total_cer += cer.compute(predictions=[prediction[0].upper()], references=[batch["sentence"].upper()]) * 100
 
     info = torchaudio.info(batch["path"])
-    duration_sec = info.num_frames / info.sampling_rate
+    duration_sec = info.num_frames / info.sample_rate
 
     band = int(duration_sec / bands_len)
 
