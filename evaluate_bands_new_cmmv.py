@@ -132,6 +132,7 @@ with open(f"evaluation_bands_new_cmmv.txt", "w") as f:
         mean_wer = ranges[key][1] / ranges[key][0]
         f.write(f"[{int(key)*bands_len},{int(key)*bands_len+bands_len}) -> Count: {ranges[key][0]}, Wer: {mean_wer}\n")
     f.write(f"WER: {total_wer}\n") #CER: {total_cer}")
+    f.write(f"Dataset Len: {len(merged_dataset)}\n")
 
 
 
